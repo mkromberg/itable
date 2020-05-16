@@ -1,10 +1,11 @@
- r←tbl Select query
+ r←tbl(cols Select)query
 ⍝ Select from inverted table format
+
 ⍝ tbl contains:
 ⍝    name:     name of the table
 ⍝    columns:  column names
 ⍝    data:     inverted table data
 ⍝    key:      key column
 
- r.(name columns data)←name columns data
- :If (≢columns)≥i←columns⍳⊂'Id' ⋄ r.id←i⊃data ⋄ :EndIf
+⍝ query can be:
+⍝    a single integer:

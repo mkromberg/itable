@@ -1,0 +1,7 @@
+ Test;players;results
+
+
+ results←ReadSequelProDump'C:\Devt\itable\Original\bwfgameresults.sql'
+ players←ReadSequelProDump'C:\Devt\itable\Original\bwfprofile.sql'
+
+ ∘∘∘

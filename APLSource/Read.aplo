@@ -1,0 +1,56 @@
+ r←tbl(cols Read format)keys;m;ix;ci
+⍝ Select from inverted table format
+
+⍝ tbl contains:
+⍝    name:     name of the table
+⍝    columns:  column names
+⍝    data:     inverted table data
+⍝    key:      key column
+
+⍝ cols is a vector of column names
+
+⍝ format is one of:
+⍝    'array' or '': return a ((⍴keys),⍴cols) array
+⍝    'table'      : return a new, reduced table
+⍝    'inverted'   : return a (⍴cols) array of (⍴keys) arrays
+⍝    'ns'         : return a namespace
+
+⍝ keys is a list of keys to read
+
+ :If ∨/m←(≢tbl.keys)<ix←tbl.keys⍳keys
+     ('key(s) not found: ',⍕m/keys)⎕SIGNAL 3 ⍝ INDEX ERROR
+ :EndIf
+
+ :If ∨/m←(≢tbl.columns)<ci←tbl.columns⍳cols
+     ('column(s) not found: ',⍕m/cols)⎕SIGNAL 6 ⍝ VALUE ERROR
+ :EndIf
+
+
+ :Select format
+
+ :CaseList '' 'array'
+     :If 0=⍴⍴ix ⋄ r←ix⊃¨tbl.data[ci]
+     :Else ⋄ r←⍉↑(⊂ix)∘⌷¨tbl.data[ci]
+     :EndIf
+
+ :Case 'table'
+     r←⎕NS''
+     r.name←'selection from ',tbl.name
+     r.columns←cols
+     r.data←(⊂ix)∘⌷¨tbl.data[ci]
+     r.keys←tbl.keys[ix]
+
+ :Case 'inverted'
+     r←(⊂ix)∘⌷¨tbl.data
+
+ :Case 'ns'
+     r←⎕NS''
+     :Select ≢cols
+     :Case 0 ⍝ no columns selected
+     :Case 1 ⋄ ⍎'r.',(⍕cols),'←(ci⊃tbl.data)[ix]'
+     :Else ⋄ ⍎'r.(',(⍕cols),')←(⊂ix)∘⌷¨tbl.data[ci]'
+     :EndSelect
+
+ :Else
+     'format should be one of array|table|ns|inverted'⎕SIGNAL 11
+ :EndSelect
