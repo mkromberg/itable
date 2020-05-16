@@ -1,0 +1,33 @@
+ tbl←ReadSequelProDump file;lines;ins;val;data;bqt;aqt;t;name;columns;line;i;notq
+⍝ Read a SequelPro Dump file into our own table format
+
+ lines←⊃⎕NGET file 1
+ bqt←'`'  ⍝ BackQuote Quote
+ aqt←'''' ⍝ APL Quote
+
+ (ins val)←(7↑¨lines)⍳'INSERT ' 'VALUES '
+ 'Unable to find "INSERT INTO" and "VALUES" statements'⎕SIGNAL((≢lines)∨.<ins val)/11
+
+ t←ins⊃lines
+ t←(¯1+t⍳bqt)↓t
+ ((t=bqt)/t)←aqt          ⍝ backquote to single quote
+ ((t=',')/t)←' '          ⍝ comma to space
+ (name columns)←⍎t
+
+ t←val↓lines              ⍝ Lines presumably continuing data
+ t←¯1↓¨(((⊃∘⌽)¨t)⍳';')↑t  ⍝ without trailing , or ;
+
+ data←((≢t),≢columns)⍴⊂''
+ :For i :In ⍳≢t
+     line←i⊃t
+     line[⍸(line=',')∧notq←~≠\line=aqt]←' ' ⍝ Unquoted commas become spaces
+     line[⍸(line='-')∧notq]←'¯'             ⍝ Low minuses become high
+     data[i;]←⍎line
+ :EndFor
+ data←↓⍉data
+
+ tbl←⎕NS''
+ tbl.⎕DF'[Table ',name,,' ',(⍕≢t),'×',(⍕≢columns),']'
+
+ tbl.(name columns data)←name columns data
+ :If (≢columns)≥i←columns⍳⊂'Id' ⋄ tbl.keys←i⊃data ⋄ :EndIf

@@ -1,0 +1,15 @@
+{ Settings: {
+  /* Link Development */
+  DYALOGSTARTUPSE: "C:/devt/link/StartupSession",
+  DYALOGSTARTUPKEEPLINK: 1,
+  DYALOG_NETCORE: 1,         
+  
+  /* SBOData */                           
+  LX: "⎕SE.Link.Create # ((Folder←⊃1 ⎕NPARTS 2 ⎕NQ '.' 'GetEnvironment' 'LOAD'),'APLSource')",
+  MAXWS: "300M",
+  }
+}
+
+
+
+
