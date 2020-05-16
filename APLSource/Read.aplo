@@ -1,4 +1,4 @@
- r←tbl(cols Read format)keys;m;ix;ci
+ r←tbl(cols Read format)keys;m;ix;ci;scalar
 ⍝ Select from inverted table format
 
 ⍝ tbl contains:
@@ -45,10 +45,11 @@
 
  :Case 'ns'
      r←⎕NS''
+     scalar←ix∘{0=⍴⍴⍺:⊃¨⍵ ⋄ ⍵}
      :Select ≢cols
      :Case 0 ⍝ no columns selected
-     :Case 1 ⋄ ⍎'r.',(⍕cols),'←(ci⊃tbl.data)[ix]'
-     :Else ⋄ ⍎'r.(',(⍕cols),')←(⊂ix)∘⌷¨tbl.data[ci]'
+     :Case 1 ⋄ ⍎'r.',(⍕cols),'←scalar (ci⊃tbl.data)[ix]'
+     :Else ⋄ ⍎'r.(',(⍕cols),')←scalar (⊂ix)∘⌷¨tbl.data[ci]'
      :EndSelect
 
  :Else

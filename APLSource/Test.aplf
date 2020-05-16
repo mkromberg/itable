@@ -1,7 +1,28 @@
- Test;players;results
+ Test;players;results;assert;jay;tbl;cols;kim;mat;keys;ns
 
+ assert←{⍺←'assertion failed' ⋄ 0∊⍵:⍺ ⎕SIGNAL 11}
 
  results←ReadSequelProDump'C:\Devt\itable\Original\bwfgameresults.sql'
  players←ReadSequelProDump'C:\Devt\itable\Original\bwfprofile.sql'
 
- ∘∘∘
+ cols←'First_Name' 'Last_Name' 'ACBL_Tot_Points'
+ jay←'Jay' 'Whipple' 0
+ kim←'Kimberly' 'Whipple' 0
+ mat←2 3⍴jay,kim
+ keys←1 7
+
+ assert jay≡players(cols Read'')⊃keys  ⍝ Read record using scalar key
+ assert mat≡players(cols Read'')keys   ⍝ Read using vector of keys
+
+ tbl←players(cols Read'table')keys     ⍝ Read 2 records, creating a new table
+ assert'selection from bwfprofile'≡tbl.name ⍝ This is a selection from bwfprofile
+ assert keys≡tbl.keys                       ⍝ Two expected keys came across
+ assert cols≡tbl.columns                    ⍝ The selected columns
+ assert(↓⍉mat)≡tbl.data                     ⍝ And the inverted data is correct
+
+ ns←players(cols Read'ns')⊃keys             ⍝ Create namespace from Scalar key
+ assert cols[⍋cols]≡ns.⎕NL-2                ⍝ We get a namespace with col-names in it
+ assert jay≡ns⍎⍕cols                        ⍝ With the right data
+
+ ns←players(cols Read'ns')keys              ⍝ Create namespace from 2 keys key
+ assert(↓⍉mat)≡ns⍎⍕cols                     ⍝ Each variable is now a vector
