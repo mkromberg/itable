@@ -26,3 +26,5 @@
 
  ns←players(cols Read'ns')keys              ⍝ Create namespace from 2 keys key
  assert(↓⍉mat)≡ns⍎⍕cols                     ⍝ Each variable is now a vector
+
+ ∘∘∘

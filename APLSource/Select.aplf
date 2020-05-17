@@ -1,11 +1,44 @@
- r←tbl(cols Select)query
+ r←tbl(cols Select format)query;data;columns;keys;m;q;i;val;fn;col;ci;coldata;num;f
 ⍝ Select from inverted table format
+⍝ Arguments as for Read, except format can be "keys"
+⍝
+⍝ query can be triplets of
+⍝ colname fn value, where fn is selected from
+⍝    <≤=≥>∊ and "like"
 
-⍝ tbl contains:
-⍝    name:     name of the table
-⍝    columns:  column names
-⍝    data:     inverted table data
-⍝    key:      key column
+ (columns data)←tbl.(columns data)
+ :If 2≥|≡query ⋄ query←⊂query ⋄ :EndIf
+ query←,query
 
-⍝ query can be:
-⍝    a single integer:
+ :If 0≠≢m←(≢tbl.keys)⍴1
+     :For i :In ⍳≢query
+         :If 3≠≢q←i⊃query
+             ('query[',(⍕i),'] is not in form (columnname fn value)')⎕SIGNAL 11
+         :EndIf
+         (col fn val)←q
+         :If (≢columns)<ci←columns⍳⊂col
+             ('column not found: ',col)⎕SIGNAL 6
+         :EndIf
+
+         coldata←ci⊃data
+         num←326≠⎕DR coldata
+
+         :Trap 999
+             :Select fn
+             :Case 'like'
+                 f←1∊¨val∘⍷¨coldata
+             :Case '∊'
+                 f←coldata∊val
+             :CaseList '<≤=≠≥>'
+                 f←coldata(⍎fn)val
+             :EndSelect
+         :Else
+             ((⊃⎕DM),' executing query[',(⍕i),']')⎕SIGNAL 11
+         :EndTrap
+         m←m∧f
+     :EndFor
+ :EndIf
+
+ r←m/tbl.keys
+ →(format≡'keys')⍴0
+ r←tbl(cols Read format)r
