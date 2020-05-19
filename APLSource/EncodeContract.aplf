@@ -1,6 +1,14 @@
-r←EncodeContract txt
-⍝ Contract: Integer encoding: tricks+(10×suit SHDC)+50×double, negative if doubled, neg -50 if redoubled
+r←EncodeContract txt;d;s;x;⎕IO;suits
+⍝ Contract: Integer encoding: tricks+(10×suit NSHDC)+50×double, negative if doubled, neg -50 if redoubled
 ⍝ Examples:
+⍝     6N   =            6
 ⍝     1S   = 10+1     = 11
 ⍝     2CX  = -40+2    = ¯42
 ⍝     2HXX = -2+20+50 = ¯72
+
+ ⎕IO←0 ⋄ suits←'NSHDC'
+ :If 1≠⍴d←⎕D∩txt ⋄ ∘∘∘ ⋄ :EndIf ⍝ Not exactly one digit
+ :If 1≠⍴s←suits∩txt ⋄ ∘∘∘ ⋄ :EndIf ⍝ Not exactly one suit
+ x←+/txt='X' ⍝ Doublings
+
+ r←⊃(¯1*x≠0)×(⎕D⍳d)+(10×suits⍳s)+50×x=2

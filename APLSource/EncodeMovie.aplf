@@ -1,9 +1,41 @@
-r←EncodeMovie lin
+r←EncodeMovie lin;⎕IO;data;m;keys;extract;sv;bids;an;md;dealer;si;hi;deal;emd;cm;pc
 ⍝ Turn a "lin" representation of a Bridge game into
 ⍝ Vulnerable, Bids, Dealer, Hands, CardPlay
 
 ⍝ Vulnerable; n|e|b|0
-⍝ Bids: Encoded as contract, 0 meaning pass
 ⍝ Dealer 1-4 NSEW
+⍝ Bids: Encoded as contract, 0 meaning pass
 ⍝ Hands: 4x4x16 boolean: one plane per hand, one row per suit
-⍝ CardPlay: Played cards, (index into deck, ravel of A23456789TJQK)+13×index into 'SHDC'. H7 = (13×1)+7 = 20
+⍝ CardPlay: Played cards, (index into deck, ravel of 23456789TJQKA)+13×index into 'SHDC'. H7 = (13×1)+7 = 20
+
+⎕IO←0
+(keys data)←↓⍉1↓¨{⍵⍴⍨2,⍨2÷⍨≢⍵}{(⍵='|')⊂⍵}¯1⌽lin
+extract←{(keys∊⊆⍵)/data}
+
+:If ~∧/m←keys∊'ah' 'an' 'mb' 'md' 'pc' 'rh' 'st' 'sv'
+   ⎕←'Unknown code: ',∪(~m)/keys
+  ∘∘∘
+:EndIf
+
+ sv←⊃extract'sv'              ⍝ Vulnerable
+
+ m←~(bids←extract'mb')∊⊂,'p'
+ bids←m\EncodeContract¨m/bids ⍝ Numeric bids
+
+ m←keys∊⊂'an'
+ an←(m/+\keys∊⊂'mb'),⍪m/data  ⍝ Announcements
+
+ dealer←⊃md←⊃extract'md'
+ md←1↓¨3↑((1@0)md=',')⊂md
+ md←md∪¨⊂'SHDC' ⍝ Make sure all suits are mentioned
+
+ cm←~(emd←∊md)∊'SHDC'  ⍝ Card mask
+ si←cm/∊+\¨md∊¨⊂'HDC'  ⍝ Suite Index
+ hi←13/⍳3              ⍝ Hand Index
+ deal←3 4 13⍴0         ⍝ Cards Dealt
+ deal[↓hi,si,⍪'23456789TJQKA'⍳cm/emd]←1
+ deal⍪←~∨⌿deal
+
+ pc←13 4⍴{(13×'SHDC'⍳0⊃¨⍵)+'23456789TJQK'⍳1⊃¨⍵}extract'pc'
+
+ r←sv dealer bids deal pc

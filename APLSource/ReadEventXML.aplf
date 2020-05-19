@@ -7,12 +7,11 @@
 ⍝ PlayerN, PlayerS, PlayerE, PlayerW: keys in players table
 ⍝ Score, Tricks: Integers containing what the name says
 ⍝ Contract: Integer encoding: tricks+(10×suit SHDC)+50×double, negative if doubled, neg -50 if redoubled 2HXX = -2+20+50 = ¯72
-⍝ Deal: 4x4x16 boolean: one plane per hand, one row per suit
-⍝ Dealer 1-4 NSEW
 ⍝ Vulnerable; n|e|b|0
 ⍝ Bids: Encoded as contract, 0 meaning pass
+⍝ Dealer 1-4 NSEW
+⍝ Hands: 4x4x16 boolean: one plane per hand, one row per suit
 ⍝ CardPlay: Played cards, (index into deck, ravel of A23456789TJQK)+13×index into 'SHDC'. H7 = (13×1)+7 = 20
-
 
 x←⎕XML⊃⎕NGET file
 pairs←(x[;2]∊'PAIR_NUMBER' 'DIRECTION' 'NATIONAL_ID_NUMBER' 'PLAYER_NAME' 'BBO_ACBL_MASTERPOINTS')⌿x
@@ -41,3 +40,5 @@ r←(m←(1⊃⎕VFI('-'⎕R'¯')⍕r[;3])∧0≠≢¨r[;4])⌿r ⍝ Remove non-
 
 r←(⍴r)⍴f
 r←pairs[r[;1];1;],pairs[r[;2];2;],r[;3 4] ⍝ Players N S E W, Score, Tricks
+r←r,EncodeContract¨bids                   ⍝ Contract
+r←r,EncodeMovie¨movies                    ⍝ Vulnerable, Bids, Dealer, Hands, CardPlay
