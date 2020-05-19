@@ -1,0 +1,6 @@
+r←EncodeContract txt
+⍝ Contract: Integer encoding: tricks+(10×suit SHDC)+50×double, negative if doubled, neg -50 if redoubled
+⍝ Examples:
+⍝     1S   = 10+1     = 11
+⍝     2CX  = -40+2    = ¯42
+⍝     2HXX = -2+20+50 = ¯72

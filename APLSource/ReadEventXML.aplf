@@ -1,0 +1,43 @@
+(players games)←ReadEventXML file;x;i;pairs;npairs;m;p;facts;score;r;movies;v;f;bids
+⍝ Read a BBO event. Return two tables:
+⍝ Table "players" has columns:
+⍝ Name, ACBL_MasterPoints ⍝ Not everyone has a name, though
+
+⍝ Table "games" has columns:
+⍝ PlayerN, PlayerS, PlayerE, PlayerW: keys in players table
+⍝ Score, Tricks: Integers containing what the name says
+⍝ Contract: Integer encoding: tricks+(10×suit SHDC)+50×double, negative if doubled, neg -50 if redoubled 2HXX = -2+20+50 = ¯72
+⍝ Deal: 4x4x16 boolean: one plane per hand, one row per suit
+⍝ Dealer 1-4 NSEW
+⍝ Vulnerable; n|e|b|0
+⍝ Bids: Encoded as contract, 0 meaning pass
+⍝ CardPlay: Played cards, (index into deck, ravel of A23456789TJQK)+13×index into 'SHDC'. H7 = (13×1)+7 = 20
+
+
+x←⎕XML⊃⎕NGET file
+pairs←(x[;2]∊'PAIR_NUMBER' 'DIRECTION' 'NATIONAL_ID_NUMBER' 'PLAYER_NAME' 'BBO_ACBL_MASTERPOINTS')⌿x
+npairs←⌊0.5×+/m←pairs[;2]∊⊂'PAIR_NUMBER'
+:If (2/⍳npairs)≢2⊃⎕VFI⍕m⌿pairs[;3] ⋄ ∘∘∘ ⋄ :EndIf ⍝ Incomplete pairs
+:If ((pairs[;2]∊⊂'DIRECTION')/pairs[;3])≢2/(2×npairs)⍴'NS' 'EW' ⋄ ∘∘∘ ⋄ :EndIf ⍝ Strange directions
+:If (8×npairs)≢≢p←(pairs[;2]∊'PLAYER_NAME' 'BBO_ACBL_MASTERPOINTS')/pairs[;3] ⋄ ∘∘∘ ⋄ :EndIf
+
+'players'⎕NS''
+players.name←'Players'
+players.columns←'Name' 'ACBL_MasterPoints'
+players.data←↓⍉((4×npairs),2)⍴p
+players.keys←⍳4×npairs
+pairs←npairs 2 2⍴players.keys ⍝ for use creating game data
+
+x←(x[;2]∊facts←'TRAVELLER_LINE' 'NS_PAIR_NUMBER' 'EW_PAIR_NUMBER' 'BBO_MOVIE' 'SCORE' 'CONTRACT' 'TRICKS')⌿x
+:If x[;2]≢(≢x)⍴facts ⋄ ∘∘∘ ⋄ :EndIf ⍝ Incomplete records
+i←⍸x[;2]∊⊂'TRAVELLER_LINE'
+
+r←x[i∘.+1 2 4 6;3] ⋄ movies←x[i+3;3] ⋄ bids←x[i+5;3]
+
+r←(m←(1⊃⎕VFI('-'⎕R'¯')⍕r[;3])∧0≠≢¨r[;4])⌿r ⍝ Remove non-numeric scores or games with no #tricks reported
+(movies bids)←m∘/¨movies bids
+(v f)←⎕VFI('-'⎕R'¯')⍕,r
+:If (⍴,r)≠⍴v ⋄ ∘∘∘ ⋄ :EndIf ⍝ Bad data
+
+r←(⍴r)⍴f
+r←pairs[r[;1];1;],pairs[r[;2];2;],r[;3 4] ⍝ Players N S E W, Score, Tricks
