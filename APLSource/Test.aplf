@@ -1,10 +1,20 @@
- Test;players;results;assert;jay;tbl;cols;kim;mat;keys;ns;games;players2
+ Test;players;results;assert;jay;tbl;cols;kim;mat;keys;ns;games;players2;i;data;score;tricks;vulnerable;contract;dealer;key;suit;face;double;n;vul;computed
 
  assert←{⍺←'assertion failed' ⋄ 0∊⍵:⍺ ⎕SIGNAL 11}
 
  results←ReadSequelProDump'C:\Devt\itable\Original\bwfgameresults.sql'
  players←ReadSequelProDump'C:\Devt\itable\Original\bwfprofile.sql'
  (players2 games)←ReadEventXML'C:\Devt\itable\Original\eventdata.xml'
+
+ data←games('Score' 'Tricks' 'Vulnerable' 'Contract' 'Dealer'Read'inverted')games.keys
+ :For (score tricks vulnerable contract dealer key) :InEach data,⊂games.keys
+     (suit n)←0 10⊤|contract ⋄ double←+/0 ¯50∘.>contract
+     vul←∨/('b','nene'[dealer])∊vulnerable
+     :If score≠computed←(¯1*dealer∊2 4)×ScoreGame(tricks-6)n suit double vul
+         ∘∘∘ ⍝ fail
+     :EndIf
+     ⎕←key contract score computed
+ :EndFor
 
  cols←'First_Name' 'Last_Name' 'ACBL_Tot_Points'
  jay←'Jay' 'Whipple' 0

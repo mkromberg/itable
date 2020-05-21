@@ -1,6 +1,7 @@
 txt←DecodeContract n;⎕IO;suits;x;s;d
 ⍝ See EncodeContract for documentation
 
+ →(n=0)⍴0⊣txt←,'p'
  ⎕IO←0 ⋄ suits←'NSHDC'
  x←+/n<0 ¯50
  (s d)←0 10⊤|n+50×x=2

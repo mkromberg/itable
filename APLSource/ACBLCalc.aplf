@@ -1,0 +1,63 @@
+ Z←ACBLCalc;bothvul;nsvul;ewvul;vul;b;d;s;t;bb;n;x;FORM_down
+⍝https://en.wikipedia.org/wiki/Bridge_scoring#Doubled_or_redoubled_bonus
+⍝Scoring Table: www.rpbridge.net/2y66.htm
+⍝Requires FORM_: tricks suit penalty declarer making (board/vul)
+⍝Form_making: +1 => 1+relative tricks , 2 => exatly two tricks made , -1 down one relative to tricks
+⍝Assume North/South Score (make negative it E/W)
+
+ bothvul←4 7 10 13 20 23 26 29 36
+ nsvul←2 5 12 15 18 21 28 31 34
+ ewvul←3 6 9 16 19 22 25 32 35
+
+⍝Is Declarer Vulnerable?
+ d←('South'≡FORM_declarer)∨'North'≡FORM_declarer
+ vul←(,1↑NUM,FORM_board)∊bothvul,(d/nsvul),(~d)/ewvul
+
+ FORM_down←''   ⍝ less than
+ →(0≠1↑NUMNEG FORM_making)⍴⎕LC+1 ⋄ FORM_making←FORM_tricks ⍝ If no number of tricks made assume contract exactly made
+ →(~'+'=1↑FORM_making)⍴⎕LC+1 ⋄ FORM_making←⍕(NUM FORM_tricks)+NUM FORM_making
+
+ →(0≤1↑NUMNEG FORM_making)⍴⎕LC+1 ⋄ FORM_down←⍕|NUMNEG FORM_making ⋄ FORM_making←''
+ FORM_penalty←∆db,LOWERCASE FORM_penalty
+
+ n←,NUMNEG,FORM_making,' '
+
+ :If 0=1↑NUMNEG,FORM_down,' '
+
+⍝Calculate Making Score
+     s←('NSHDC')⍳1↑FORM_suit
+     t←,NUM,FORM_tricks
+⍝base for tricks made
+     b←(40 30 30 20 20 0)[s]+(n-1)×(30 30 30 20 20 0)[s]
+⍝base for tricks contracted
+     bb←(t≤n)×bb←(40 30 30 20 20 0)[s]+(t-1)×(30 30 30 20 20 0)[s]
+⍝If X or XX then change base
+     bb←bb×(2 4 1)[(,¨'x' 'xx')⍳⊂FORM_penalty]
+
+     d←bb
+     d←d+50×(bb<100)
+
+
+     d←d+(300 500)[1+vul]×bb≥100
+     d←d+(500 750)[1+vul]×(t×t≤n)≥6
+     d←d+(500 750)[1+vul]×(t×t≤n)≥7
+
+⍝add penalty bonus
+     d←d+50×(1 2 0)[(,¨'x' 'xx')⍳(⊂FORM_penalty)]
+     x←(n-t)×(1+vul)×(100 200 0)[(,¨'x' 'xx')⍳⊂FORM_penalty]
+     d←d+x
+     Z←d
+
+ :Else
+⍝Calculate Down Score
+     d←((⊂FORM_penalty)∊,¨'' 'No')×(50 100)[1+vul]×,NUM,FORM_down
+     d←d+(((,'xx')≡FORM_penalty)+(,'x')≡FORM_penalty)×(~vul)×(100×1,3,2+3×⍳11)[,NUM,FORM_down]
+     d←¯1×d+((2×(,'xx')≡FORM_penalty)+(,'x')≡FORM_penalty)×(vul)×(100×2,2+3×⍳11)[,NUM,FORM_down]
+     Z←d
+ :EndIf
+
+ →(~(1↑FORM_declarer)∊'EW')⍴⎕LC+1 ⋄ Z←¯1×Z
+
+⍝Convert to N/S ScoreBridge scoringhttps://en.wikipedia.org21.43Thanks!adajcw, 21.43lot of utilities in thereits very non-apl code but it works ∆calcBWS '3S +1'
+ 140
+ ∆calcBWS'3Sx +1'

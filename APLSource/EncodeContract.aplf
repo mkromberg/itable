@@ -6,6 +6,7 @@ r←EncodeContract txt;d;s;x;⎕IO;suits
 ⍝     2CX  = -40+2    = ¯42
 ⍝     2HXX = -2+20+50 = ¯72
 
+ →(txt≡,'p')⍴r←0
  ⎕IO←0 ⋄ suits←'NSHDC'
  :If 1≠⍴d←⎕D∩txt ⋄ ∘∘∘ ⋄ :EndIf ⍝ Not exactly one digit
  :If 1≠⍴s←suits∩txt ⋄ ∘∘∘ ⋄ :EndIf ⍝ Not exactly one suit

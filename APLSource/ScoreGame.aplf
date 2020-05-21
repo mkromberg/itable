@@ -1,0 +1,31 @@
+ score←ScoreGame(made contracted suite double vulnerable);⎕IO;base;score;trickvalue;down
+⍝ Score a game of bridge based on the contract, # of tricks made, and vulnerability.
+⍝ See http://www.rpbridge.net/2y66.htm
+⍝ suite: 0-4 (NSHDC)
+
+ ⎕IO←0
+
+ :If made≥contracted    ⍝ This is where you want to be
+
+⍝ Base for contracted
+     base←(40 30 30 20 20 0)[suite]
+     trickvalue←(30 30 30 20 20 0)[suite]
+     base+←(contracted-1)×trickvalue
+     base×←2*double
+
+⍝ Adjustments
+     score←base+50⌈(300 500)[vulnerable]×base≥100
+     score+←(500 750)[vulnerable]×0⌈contracted-5        ⍝ "Slam" bonus
+     score+←50×double                                   ⍝ Penalty bonus
+     score+←(made-contracted)×trickvalue+(1+vulnerable)×100×double ⍝ Overtricks
+
+ :Else
+     down←contracted-made ⍝ uh-oh!
+     :If double=0
+         score←-(50 100)[vulnerable]×down        ⍝ 50 or 100 for every trick
+     :ElseIf vulnerable
+         score←-double×100×2+3×down-1            ⍝ 200, then +300 for every trick
+     :Else
+         score←-double×100×1+(2×down-1)+0⌈down-4 ⍝ 100 300 500, then +300 for every trick
+     :EndIf
+ :EndIf

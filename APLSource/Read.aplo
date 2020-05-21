@@ -41,7 +41,7 @@
      r.keys←tbl.keys[ix]
 
  :Case 'inverted'
-     r←(⊂ix)∘⌷¨tbl.data
+     r←(⊂ix)∘⌷¨tbl.data[ci]
 
  :Case 'ns'
      r←⎕NS''
