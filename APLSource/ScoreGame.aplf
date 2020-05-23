@@ -17,7 +17,7 @@
      score←base+50⌈(300 500)[vulnerable]×base≥100
      score+←(500 750)[vulnerable]×0⌈contracted-5        ⍝ "Slam" bonus
      score+←50×double                                   ⍝ Penalty bonus
-     score+←(made-contracted)×trickvalue+(1+vulnerable)×100×double ⍝ Overtricks
+     score+←(made-contracted)×trickvalue⌈100×double×1+vulnerable ⍝ Overtricks
 
  :Else
      down←contracted-made ⍝ uh-oh!

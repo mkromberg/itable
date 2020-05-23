@@ -1,4 +1,4 @@
- (players games)←ReadEventXML file;x;i;pairs;npairs;m;p;facts;score;r;movies;v;f;bids
+ (players games)←ReadEventXML file;x;i;pairs;npairs;m;p;facts;score;r;movies;v;f;playedby;contract
 ⍝ Read a BBO event. Return two tables:
 ⍝ Table "players" has columns:
 ⍝ Name, ACBL_MasterPoints ⍝ Not everyone has a name, though
@@ -27,24 +27,30 @@
  players.keys←⍳4×npairs
  pairs←npairs 2 2⍴players.keys ⍝ for use creating game data
 
- x←(x[;2]∊facts←'TRAVELLER_LINE' 'NS_PAIR_NUMBER' 'EW_PAIR_NUMBER' 'BBO_MOVIE' 'SCORE' 'CONTRACT' 'TRICKS')⌿x
+ x←(x[;2]∊facts←'TRAVELLER_LINE' 'NS_PAIR_NUMBER' 'EW_PAIR_NUMBER' 'BBO_MOVIE' 'SCORE' 'CONTRACT' 'PLAYED_BY' 'TRICKS')⌿x
+ i←⍸x[;2]∊⊂'TRAVELLER_LINE'
+ m←(≢x)⍴1
+ m[(⍳¯1+≢facts)∘.+i/⍨~x[i+6;2]∊⊂'PLAYED_BY']←0
+ x←m⌿x ⍝ Remove incompleted games
+
  :If x[;2]≢(≢x)⍴facts ⋄ ∘∘∘ ⋄ :EndIf ⍝ Incomplete records
  i←⍸x[;2]∊⊂'TRAVELLER_LINE'
 
- r←x[i∘.+1 2 4 6;3] ⋄ movies←x[i+3;3] ⋄ bids←x[i+5;3]
+ r←x[i∘.+1 2 4 7;3]
+ movies←x[i+3;3] ⋄ contract←x[i+5;3] ⋄ playedby←x[i+6;3]
 
- r←(m←(1⊃⎕VFI('-'⎕R'¯')⍕r[;3])∧0≠≢¨r[;4])⌿r ⍝ Remove non-numeric scores or games with no #tricks reported
- (movies bids)←m∘/¨movies bids
+⍝ r←(m←(1⊃⎕VFI('-'⎕R'¯')⍕r[;3])∧0≠≢¨r[;4])⌿r ⍝ Remove non-numeric scores or games with no #tricks reported
+⍝ (movies contract)←m∘/¨movies contract
  (v f)←⎕VFI('-'⎕R'¯')⍕,r
  :If (⍴,r)≠⍴v ⋄ ∘∘∘ ⋄ :EndIf ⍝ Bad data
 
  r←(⍴r)⍴f
- r←pairs[r[;1];1;],pairs[r[;2];2;],r[;3 4] ⍝ Players N S E W, Score, Tricks
- r←r,EncodeContract¨bids                   ⍝ Contract
+ r←pairs[r[;1];1;],pairs[r[;2];2;],r[;3 4],playedby ⍝ Players N S E W, Score, Tricks, Played By
+ r←r,EncodeContract¨contract
  r←r,↑EncodeMovie¨movies                   ⍝ Vulnerable, Bids, Dealer, Hands, CardPlay
 
  'games'⎕NS''
  games.name←'Games'
- games.columns←'North' 'South' 'East' 'West' 'Score' 'Tricks' 'Contract' 'Vulnerable' 'Dealer' 'Bids' 'Hands' 'CardPlay'
+ games.columns←'North' 'South' 'East' 'West' 'Score' 'Tricks' 'PlayedBy' 'Contract' 'Vulnerable' 'Dealer' 'Bids' 'Hands' 'CardPlay'
  games.data←↓⍉r
  games.keys←⍳≢r
